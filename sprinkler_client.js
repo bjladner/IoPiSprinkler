@@ -16,13 +16,13 @@ function clientUpdate() {
 	    if (data != "updateData" && data != "nodeID" && data != "timer")
 		logger.debug("clientInfo: " + data + " - " + clientInfo[data]);
 	}
-	clientInfo.nodeID = sprinklerSyster.deviceID;
-        logger.debug("Sending client info for " + sprinklerSyster.name);
+	clientInfo.nodeID = sprinklerSystem.deviceID;
+        logger.debug("Sending client info for " + sprinklerSystem.name);
         io.emit('CLIENT_INFO', clientInfo);
     });
     clientInfo.timer = setTimeout(function() {
 	clientUpdate();
-    }, cfg.sensor.interval);
+    }, cfg.sprinklerSystem.interval);
 }
 
 io.on('connect', function(socket){
@@ -37,14 +37,16 @@ io.on('connect', function(socket){
 });
 
 io.on('ACTION', function(data){
-    logger.debug("Data received: " + JSON.stringify(data));
-    if (data.action == "CHANGE") {
-        sprinklerSystem.changeStatus();
-    } else if (data.action == "STATUS") {
-        sprinklerSystem.getStatus(function () {
-            io.emit('SEND_DATA', sprinklerSystem);
-        });  
-    } else {
-        logger.warn("Unknown command: " + data.action);
+    if (data.nodeID == sprinklerSystem.deviceID) {
+        logger.debug("Sprinkler data received: " + JSON.stringify(data));
+        if (data.action == "CHANGE") {
+            sprinklerSystem.changeStatus();
+        } else if (data.action == "STATUS") {
+            sprinklerSystem.getStatus(function () {
+                io.emit('SEND_DATA', sprinklerSystem);
+            });  
+        } else {
+            logger.warn("Unknown command: " + data.action);
+        }
     }
 });

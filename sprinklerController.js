@@ -1,4 +1,3 @@
-var GPIO = require('onoff').Gpio;
 var logger = require("./logger");
 
 const idleState = 0;

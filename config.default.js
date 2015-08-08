@@ -11,6 +11,7 @@ cfg.client.address = 'http://192.168.1.140';
 
 // Sprinkler System settings
 cfg.sprinklerSystem = {};
+cfg.sprinklerSystem.interval = 10000;
 cfg.sprinklerSystem.deviceID = 20;
 cfg.sprinklerSystem.name = "Sprinkler System";
 cfg.sprinklerSystem.type = "sprinkler";
