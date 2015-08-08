@@ -20,7 +20,7 @@ sprinklerController.prototype.changeStatus = function() {
 
 sprinklerController.prototype.getStatus = function(callback) {
     var self = this;
-    logger.debug("Getting state of door " + this.name);
+    logger.debug("Getting state of " + this.name);
     logger.debug("State of " + self.name + " is " + self.Status);
     callback();
 }
