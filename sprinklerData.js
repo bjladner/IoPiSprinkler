@@ -1,0 +1,64 @@
+var exec = require('child_process').exec;
+var logger = require("./logger");
+var cfg = require('./config.default');
+
+module.exports = sprinklerData;
+
+function sprinklerData() {
+    this.wifi = 'not measured';
+    this.uptime = 'not measured';
+    this.cpuTemp = 'not measured';
+    this.lastUpdate = 'not measured';
+}
+
+sprinklerData.prototype.updateData = function(callback) {
+    var self = this;
+	
+    // Code for Wireless signal, Uptime, and CPU temperature
+    //awk 'NR==3 {print $3 "0 %"}''' /proc/net/wireless 
+    var wifiCmd = 'awk \'NR==3 {print \$3}\'\'\' /proc/net/wireless'; // (3rd line, 3rd item = wireless level in %)
+    var uptimeCmd = 'awk \'{print \$1}\'\'\' /proc/uptime'; // (1st line, 1st item = uptime in seconds)
+    var cpuTempCmd = 'cat /sys/class/thermal/thermal_zone0/temp'; // (only item in milidegrees C (x/1000))
+    // to run external commands in node.js, check out:
+    // http://stackoverflow.com/questions/20643470/execute-a-command-line-binary-in-node-js
+
+    this.lastUpdate = new Date();
+    exec(wifiCmd, function(error, stdout, stderr) {
+		if (error) {
+			logger.error("error in wifiCmd:");
+			logger.error(error);
+		}
+        self.wifi = parseFloat(stdout).toFixed(1); // + "%";
+    });
+    exec(uptimeCmd, function(error, stdout, stderr) {
+		if (error) {
+			logger.error("error in uptimeCmd:");
+			logger.error(error);
+		}
+        // change from seconds to days, hours, minutes, seconds
+        self.uptime = readify(parseFloat(stdout));
+    });
+    exec(cpuTempCmd, function(error, stdout, stderr) {
+		if (error) {
+			logger.error("error in cpuTempCmd:");
+			logger.error(error);
+		}
+        self.cpuTemp = (parseFloat(stdout)/1000).toFixed(1) + "C";
+    });
+    callback();
+}
+
+// Takes an amount of seconds and turns it into a human-readable amount of time.
+function readify(seconds) {
+	var dayLength = 60 * 60 * 24;
+	var hourLength = 60 * 60;
+	var minuteLength = 60;
+	var days = Math.floor(seconds / dayLength);
+	seconds = seconds % dayLength;
+	var hours = Math.floor(seconds / hourLength);
+	seconds = seconds % hourLength;
+	var minutes = Math.floor(seconds / minuteLength);
+	seconds = seconds % minuteLength;
+	
+	return (days + "d " + hours + "h " + minutes + "m " + seconds.toFixed()  + "s");
+}
