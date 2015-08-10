@@ -33,7 +33,9 @@ io.on('connect', function(socket){
         io.emit('SEND_DATA', sprinklerSystem);
     });
     
-    clientUpdate();
+    setTimeout(function() {
+        clientUpdate();
+    }, 1000);
 });
 
 io.on('ACTION', function(data){
