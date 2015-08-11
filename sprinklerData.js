@@ -24,25 +24,19 @@ sprinklerData.prototype.updateData = function(callback) {
 
     this.lastUpdate = new Date();
     exec(wifiCmd, function(error, stdout, stderr) {
-		if (error) {
-			logger.error("error in wifiCmd:");
-			logger.error(error);
-		}
+	if (error)
+	    logger.error("error in wifiCmd:" + error);
         self.wifi = parseFloat(stdout).toFixed(1); // + "%";
     });
     exec(uptimeCmd, function(error, stdout, stderr) {
-		if (error) {
-			logger.error("error in uptimeCmd:");
-			logger.error(error);
-		}
+	if (error)
+	    logger.error("error in uptimeCmd:" + error);
         // change from seconds to days, hours, minutes, seconds
         self.uptime = readify(parseFloat(stdout));
     });
     exec(cpuTempCmd, function(error, stdout, stderr) {
-		if (error) {
-			logger.error("error in cpuTempCmd:");
-			logger.error(error);
-		}
+	if (error)
+	    logger.error("error in cpuTempCmd:" + error);
         self.cpuTemp = (parseFloat(stdout)/1000).toFixed(1) + "C";
     });
     callback();
