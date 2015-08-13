@@ -1,17 +1,29 @@
 var exec = require('child_process').exec;
+var sensorLib = require('node-dht-sensor');
 var logger = require("./logger");
 var cfg = require('./config.default');
 
-module.exports = sprinklerData;
+module.exports = clientData;
 
-function sprinklerData() {
+function clientData() {
     this.wifi = 'not measured';
     this.uptime = 'not measured';
     this.cpuTemp = 'not measured';
     this.lastUpdate = 'not measured';
+    this.sensorAvailable = false;
+    
+    if (cfg.sensor.use) {
+        this.humidity = 'not measured';
+        this.lastUpdate = 'not measured';
+
+        this.sensorAvailable = sensorLib.initialize(cfg.sensor.type, cfg.sensor.gpio);
+        if (!this.sensorAvailable) {
+            logger.warn('Failed to initialize sensor');
+        }
+    }
 }
 
-sprinklerData.prototype.updateData = function(callback) {
+clientData.prototype.updateData = function(callback) {
     var self = this;
 	
     // Code for Wireless signal, Uptime, and CPU temperature
@@ -39,6 +51,11 @@ sprinklerData.prototype.updateData = function(callback) {
 	    logger.error("error in cpuTempCmd:" + error);
         self.cpuTemp = (parseFloat(stdout)/1000).toFixed(1) + "C";
     });
+    if (this.sensorAvailable) {
+        var readout = sensorLib.read();
+        self.temperature = readout.temperature.toFixed(1) + "C";
+        self.humidity = readout.humidity.toFixed(1) + "%";
+    }		
     callback();
 }
 

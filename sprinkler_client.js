@@ -1,12 +1,12 @@
 var sock = require('socket.io-client');
 var cfg = require('./config.default');
 var sprinklerController = require('./sprinklerController');
-var sprinklerData = require('./sprinklerData');
+var clientData = require('./clientData');
 var logger = require("./logger");
 
 var io = sock.connect(cfg.server.address + ":" + cfg.server.port);
 
-var clientInfo = new sprinklerData();
+var clientInfo = new clientData();
 
 var sprinklerSystem = new sprinklerController(cfg.sprinklerSystem);
 
@@ -50,6 +50,6 @@ function clientUpdate() {
     });
     clientInfo.timer = setTimeout(function() {
 	clientUpdate();
-    }, cfg.sprinklerSystem.interval);
+    }, cfg.client.updateInterval);
 }
 
